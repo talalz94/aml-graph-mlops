@@ -1,0 +1,56 @@
+[project]
+name = "aml-graph-mlops"
+version = "0.1.0"
+description = "AML transaction monitoring on graph features, measured on daily alert budgets."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Talal Zahid" }]
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "httpx==0.28.1",
+    "lightgbm==4.7.0",
+    "numpy==2.5.4",
+    "pandas==2.3.3",  # PySpark 4.3 does not fully support pandas 3 yet
+    "pyarrow==26.0.1",
+    "pyspark==4.3.0",
+    "scikit-learn==1.9.1",
+]
+
+[project.scripts]
+aml = "aml.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest==9.2.0",
+    "ruff==0.17.4",
+    "poethepoet==0.49.0",
+]
+
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aml"]
+
+[tool.poe.tasks]
+download = { cmd = "aml download", help = "Fetch HI-Small from Kaggle (KAGGLE_USERNAME and KAGGLE_KEY in your environment)" }
+reproduce = { cmd = "aml reproduce", help = "Rebuild features, evaluate every system, rewrite the README results" }
+demo = { sequence = [{ cmd = "aml synth" }, { cmd = "aml reproduce --dataset SYN --results-dir data/results" }], help = "Run the whole pipeline on generated data; scores go to data/results, which git ignores" }
+lint = { cmd = "ruff check .", help = "Lint" }
+format = { cmd = "ruff format .", help = "Format the code" }
+test = { cmd = "pytest -q", help = "Unit tests on generated data" }
+smoke = { sequence = [{ cmd = "aml --data-dir ci-output/data synth" }, { cmd = "aml --data-dir ci-output/data reproduce --dataset SYN --results-dir ci-output/results" }], help = "The whole pipeline on generated data, written to ci-output" }
+check = { sequence = ["lint", { cmd = "ruff format --check ." }, "test", "smoke"], help = "What CI runs" }
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

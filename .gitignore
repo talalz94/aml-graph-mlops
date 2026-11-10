@@ -1,0 +1,51 @@
+# Data, eval sets, trained weights and caches never go into git. The leading slash keeps
+# data and models to the repo root, where the CLI writes them, so a folder of the same
+# name in the code or the tests is still tracked.
+/data/
+
+/models/
+ci-output/
+# Scores on generated data (aml synth) are never published. The demo writes them under
+# data/; this catches a run pointed at results/ by hand.
+results/SYN/
+*.npy
+*.npz
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.pkl
+*.joblib
+*.parquet
+*.zip
+# Small test fixtures of any type stay tracked.
+!tests/fixtures/**
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# MLflow runs and Spark scratch
+mlruns/
+mlartifacts/
+spark-warehouse/
+metastore_db/
+derby.log
